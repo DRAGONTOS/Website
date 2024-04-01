@@ -1,0 +1,17 @@
+languageCode = "en"
+languageName = "English"
+weight = 1
+title = "Kaley Fischer"
+
+[params]
+displayName = "EN"
+isoCode = "en"
+rtl = false
+dateFormat = "2 January 2006"
+
+[author]
+name = "Kaley Fischer"
+image = "favicon.png"
+headline = "Open-source Developer "
+bio = "Open-source Developer"
+links = [ { github = "https://github.com/DRAGONTOS" }, { gitlab = "https://git.kaleyfischer.xyz" }, { twitter = "https://twitter.com/dragontos_" }, { steam = "https://steamcommunity.com/id/DRAGONTOS/" }, { youtube = "https://www.youtube.com/channel/UCpzDZg6DPcCY2hpIezK71wQ" } ]
