@@ -13,6 +13,11 @@ name = "About"
 pageRef = "about"
 weight = 3
 
+[[main]]
+pre = "gitlab"
+url = "https://git.kaleyfischer.xyz/DRAGONTOS/Website"
+weight = 4
+
 [[footer]]
   name = "Tags"
   pageRef = "tags"
