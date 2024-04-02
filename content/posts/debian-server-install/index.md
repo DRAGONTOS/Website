@@ -2,8 +2,8 @@
 title: "A good debian 12 server install with docker and zsh!"
 date: 2024-04-02
 draft: false
-description: "OwO"
-tags: ["hyprland", "workflow"]
+description: ""
+tags: ["debian", "server", "vm", "docker"]
 ---
 
 How to make a good Debian 12 server install with Docker and all the tools I use for such a server, like eza and zsh.
