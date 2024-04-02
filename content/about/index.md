@@ -20,7 +20,7 @@ showAuthor: true
 layoutBackgroundHeaderSpace: false
 ---
 
-Hey! I'm Kaley! I sometimes go by DRAGONTOS or dragon. I have been using Linux for 3.2 years now and I have since 2 years ago joined the community. I try to help people with problems and make cool project's on 
+Hey! I'm Kaley! I sometimes go by DRAGONTOS or dragon, and I just turned 19! I have been using Linux for 3.2 years now and I have since 2 years ago joined the community. I try to help people with problems and make cool project's on 
 [github](https://github.com/DRAGONTOS)/[forgejo](https://git.kaleyfischer.xyz/DRAGONTOS)! I also have my own hyprland [fork](https://github.com/Trensa-Organization/hyprland)!
 
 ## 🤓 Expertise
