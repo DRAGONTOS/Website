@@ -5,206 +5,132 @@ draft: true
 description: ""
 tags: ["debian", "server", "vm", "docker"]
 ---
-
-How to make a good Debian 12 server install with Docker and all the tools I use for such a server, like eza and zsh.
+Setting up a Minecraft server with a Docker container, would it be with a proxy or with a regular one.
 
 # Minecraft server in a docker container!
 
 ## Prerequisites 
-you need to have a debian server installed with docker for information on how to do that you can follow my debian 12 server [post](https://kaleyfischer.xyz/posts/debian-server-install/).
+you will need to have an debian server installed with docker on how to do that you can follow my debian 12 server [post](https://kaleyfischer.xyz/posts/debian-server-install/).
 
+## Setting it up 
+To set it up you need to clone my [repo]():
+```
+cd ~/docker && git clone https://git.kaleyfischer.xyz/DRAGONTOS/minecraft-docker
+```
 
+## Server Setups 
+There is a lot of choice for setting up a server you could use a proxy or a regular install and
+both have a lot of option cus you could go with forge, fabric, quilt, papermc and even purpurmc and for proxies
+there is bungeecord and velocity but for this [post]() i will go with papermc and velocity on version 1.20.1 because fabic/quilt can have
+problems with mods not working perfectly or being extremely buggy (if you do want a guide for them then you can dm on [twitter]()).
 
+### Regular Server setup 
+Setting up a normal server setup isn't so hard and i will even use a quiple plugins like essentials and worldedit.
 
-
-
-
-
-
-
-
-
-### VM
-I will use a VM to setup the Debian setup. You can of course install this.
-on hardware if you want, but for ease of installation, I will use a VM and
-The software I use to do that is QEMU/KVM.
-
-- **Firmware:** UEFI
-- **Cpu:** 1 Socket, 6 Cores and 1 Thread.
-- **Ram:** 8192MiB
-- **Gpu:** virtio(2d)
-- **Hdd:** 100GiB
-
-### Debian Installer
-I will walk you through the installer from the domain,
-to manually partition disks.
-
-#### Domain 
-You now need to enter your hostname, like debian-server or something like that, and for 
-domain normally you can skip this, but if you have setup pfsense or opnsense than 
-You can enter the domain after the first dot, so for me, that would be home.arpa (the default).
-
-#### Partitioning 
-You need to choose guided remove swap because we are going to use zram, then remove root and partition it with xfs or btrfs. if using an SSD If not, you can use ext4. It will give a warning after continuing because there is no swap.
-but you can just ignore that by hitting no and then continue with the install.
-
-#### Mirrors
-You should choose the default (deb.debian.org) if you don't know which to choose.
-
-#### Desktop Selection
-Untick all but 'Debian desktop environment', 'standard utils' and enable 'SSH server'.
-
-#### Finish!
-It should now be installed.
-
-### Setting up
-
-#### Sudo
-We now need to go to tty2 (ctrl + alt + f2), then login with root because we need to add our user to the sudoers group.
-and we do that with: 
+#### Docker Configuration
+You first ofc need to configure docker to use [PaperMC]() and i will guide you line by line on how to do that.
+First you need to open it you do that by:
 ```bash
-/usr/sbin/usermod -aG sudo user
-```
-then we exit root (ctrl + d) and login with our user, and we should now be in the sudoers file!
-
-#### SSH
-Now we need to setup an SSH connection. We do that by first enabling the service:
-```
-sudo systemctl enable --now ssh
-```
-We need to check for what IP to connect to with ip a:
-```bash
-1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
-    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
-    inet 127.0.0.1/8 scope host lo
-       valid_lft forever preferred_lft forever
-    inet6 ::1/128 scope host noprefixroute 
-       valid_lft forever preferred_lft forever
-2: enp1s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
-    link/ether 52:54:00:09:75:ef brd ff:ff:ff:ff:ff:ff
-    inet 192.168.122.221/24 brd 192.168.122.255 scope global dynamic noprefixroute enp1s0
-       valid_lft 2798sec preferred_lft 2798sec
-    inet6 fe80::5054:ff:fe09:75ef/64 scope link noprefixroute 
-       valid_lft forever preferred_lft forever
-```
-And in 2. inet 192.168.122.221 is the IP we need to connect to.
-
-#### Refreshing Mirrors (and fixing kitty)
-We now need to fix Kitty because, as you may have noticed, the SSH connection is acting up.
-This is Kitty to fix that we need to do this:
-
-```bash
-sudo apt update && sudo apt upgrade -y && sudo apt install kitty -y
-sudo apt remove gdm3 -y
-```
-And then reconnect with the SSH session.
-
-#### Installing Required Packages
-We will now install all the required packages for this server installation:
-```bash
-sudo apt install cargo zram-tools fuse-overlayfs slirp4netns neovim git curl zsh neofetch make cmake rustc btop uidmap dbus-user-session -y
+nano docker-compose.yml
 ```
 
-For Mcfly:
+This section is normally used for setting up a proxy cus you use docker network routing but you can ignore this for this setup (do not remove this ofc).
 ```bash
-curl -LSfs https://raw.githubusercontent.com/cantino/mcfly/master/ci/install.sh | sudo sh -s -- --git cantino/mcfly
+networks:
+  customnetwork:
+    external: true
+    name: minecraft-stack
+```
+For the CHANGETHIS sections you just need to enter the name of your server so that if you run multiple servers with
+docker that it doesn't collide name wise.
+```bash
+  minecraft-(CHANGETHIS):
+    restart: always
+    image: minecraft-(CHANGETHIS)
+    build: ./minecraft-docker
+```
+The -Xmx2048M is for how much ram you allocate to the server you could change this to 4gb if 2gb isn't enough and server.jar is the 
+server you can also change this if needed but i recommend renaming papermc server jar to server.jar
+```bash
+    command: ["java", "-Xmx2048M", "-jar", "server.jar", "true"]
+    networks:
+      customnetwork:
+        ipv4_address: 192.168.16.(CHANGETHIS)
+```
+This where you need to put the data ./data and 8001 is remote console because you can't traditionally
+access the minecraft console becuase it's running in docker and for setting up rcon i will walk you through that in the next [step]() also what is important to know is if you have multiple server running with rcon 
+then you ofc need to change the port for the outside so change the CHANGETHIS section in "CHANGETHIS:8001".
+```bash
+    volumes:
+      - "./data:/root/minecraft"
+    ports:
+      - "25565:25565"
+      - "CHANGETHIS:8001" # RCON (REMOTE CONSOLE)
 ```
 
-For eza:
-```bash
-sudo mkdir -p /etc/apt/keyrings
-wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | sudo gpg --dearmor -o /etc/apt/keyrings/gierens.gpg
-echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | sudo tee /etc/apt/sources.list.d/gierens.list
-sudo chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/gierens.list
-sudo apt update && sudo apt install -y eza
-```
+#### Setup 
+Now you need to setup the actual server with [PaperMC]() and you need to configure rcon as mentioned [earlier]().
 
-And for dust:
-```bash
-curl -LSfs "https://github.com/bootandy/dust/releases/download/v1.0.0/du-dust_1.0.0-1_amd64.deb" -o dust.deb
-sudo dpkg -i dust.deb && rm dust.deb 
-```
-#### Zram for swap
-To set up zram, we just need to add these lines to the config and start the service for zram:
-```bash
-sudo /bin/su -c "echo -e "PERCENT=60" | sudo tee -a /etc/default/zramswap"
-sudo /bin/su -c "echo -e "ALGO=zstd" | sudo tee -a /etc/default/zramswap"
-sudo zramswap start 
-```
 
-#### Setting up zsh
-Just git clone this repo and execute the script, it will install and setup zsh:
+for setting up papermc you need to get the papermc software from [here]() then you need to put it in ./data rename it to server.jar or change the name in docker-compose.yml then you need to test run it to see if it worked
 ```bash
-git clone https://git.kaleyfischer.xyz/DRAGONTOS/zsh-dotfiles.git && zsh-dotfiles
-chmod +x install.bash
-bash install.bash
-sudo reboot
+docker compose up # ctrl + c to exit
 ```
-
-### Setting up docker with a website!
-We are now going to setup Docker with a [website](https://git.kaleyfischer.xyz/DRAGONTOS/website)!
-
-#### Docker Install 
-We need to add some lines to /etc/sysctl.conf:
+it should give you an error becuase you didn't accept the [eula]() yet. (the eula is located in ./data/eula.txt) now that the server is installed and working you should test it by runnin the container as a daemon and connecting to the ip to run it you can execute this command:
 ```bash
-sudo /bin/su -c "echo 'net.ipv4.ip_unprivileged_port_start=0' >> /etc/sysctl.conf"
-sudo /bin/su -c "echo 'kernel.unprivileged_userns_clone=1' >> /etc/sysctl.conf"
-sudo /bin/su -c "echo 'vm.max_map_count=262144' >> /etc/sysctl.conf"
-sudo sysctl --system
-```
-It's now time to install Docker!
-We first need to add the Docker keyrings, and you can do that with this:
-```bash
-sudo apt-get update
-sudo install -m 0755 -d /etc/apt/keyrings
-sudo curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
-sudo chmod a+r /etc/apt/keyrings/docker.asc
-```
-After that is done, we need to add the repo to our sources:
-```bash
-echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian \
-  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-sudo apt update
-```
-We can now finally install Docker with the most up-to-date versions:
-```bash
-sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
-```
-Now that Docker is installed, we need to test it first to check if it is installed.
-correctly or not, and you can do that with this:
-```bash
-sudo docker run hello-world
-```
-If it worked, then Docker is installed correctly!
-
-#### Setting up rootless for docker
-Now that we have Docker installed, we don't want to run everything with root and
-want to run it securely with our user in rootless mode. To do that, we need to run
-this simple script from Docker themselves:
-```bash
-sudo systemctl disable --now docker.service docker.socket
-dockerd-rootless-setuptool.sh install
-systemctl --user enable --now docker
-```
-And again, to check if it's installed correctly, we can run this command:
-```bash
-docker run hello-world
-```
-
-#### Setting up nginx
-Now that Docker is installed and working, we now need to add some folders for them.
-where to place the containers and such, and to do that, we just need to add these:
-```bash
-mkdir ~/docker && cd ~/docker
-```
-
-For setting up a site with nginx, just clone my git repo for a Docker container with nginx:
-```bash
-git clone https://git.kaleyfischer.xyz/DRAGONTOS/nginx-docker && cd nginx-docker
 docker compose up -d
 ```
+now that the server is running you should connect to it with minecraft on version 1.20.1 and you should know how to get the ip with following my post on setting up a debian server with docker [post]()
+when connect you might be convused on how to get op to get that you should start an rcon session to go over that you can follow this [post]() about it but you do first need to enable it in system.properties
+and to do that you need to open it with your favorite text editor. 
+```bash
+nano ./data/server.properties
+```
+then you need to do afew thing like setting a password, the port and enable it ofc 
+- **PORT:** It should be on line 4 and i recommend to set it to 8001.
+- **ENABLING:** Line 34 and you should set it to true
+- **PASS:** Line 42.
+
+#### Plugins 
+You can now install plugins and the plugins i will go over in this post is essentialsx and worldedit to install them you just need to put them in .data/plugins/
+and then run this command to restart the server:
+```bash
+docker compose down && docker compose up -d
+```
+<table>
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Link</th>
+        </tr>
+    </thead>
+    <tbody>
+         <tr>
+            <td>EssentialsX</td>
+            <td>EssentialsX is the essential plugin suite for Minecraft servers, with over 130 commands for servers of all size and scale.</td>
+            <td><a target="_blank" href="https://essentialsx.net/downloads.html">site</a></td>
+        </tr>
+         <tr>
+            <td>EssentialsX Chat</td>
+            <td>Chat formatting, local chat.</td>
+            <td><a target="_blank" href="https://essentialsx.net/downloads.html">site</a></td>
+        </tr>
+         <tr>
+            <td>EssentialsX Spawn</td>
+            <td>Spawnpoint control, per-player spawns.</td>
+            <td><a target="_blank" href="https://essentialsx.net/downloads.html">site</a></td>
+        </tr>
+        <tr>
+            <td>FastAsyncWorldEdit</td>
+            <td>Blazingly fast world manipulation for artists, builders and everyone else.</td>
+            <td><a target="_blank" href="https://www.spigotmc.org/resources/fastasyncworldedit.13932/">site</a></td>
+        </tr>
+    </tbody>
+</table>
+
+#### Conclusion
+You should now have setup a [PaperMC]() server with EssentialsX, Worldedit and have rcon working and running.  
 
 ## Wrapping It Up 
 I hope that you now have a working Debian 12 server installed with Docker and a running Nginx site!

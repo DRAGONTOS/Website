@@ -27,7 +27,7 @@ Hey! I'm Kaley! I sometimes go by DRAGONTOS or dragon, and I just turned 19! I h
 
 ### Servers & Administration: 
 - **Operating Systems:** Ubuntu & Debian.
-- **Container Management** Docker.
+- **Container Management:** Docker.
 - **Firewall:** pfsense, Ipfire & OPNsense.
 - **Scripting:** Bash, Systemd.
 

@@ -11,7 +11,7 @@ How to make a good Debian 12 server install with Docker and all the tools I use 
 # A good debian 12 server install with docker and zsh!
 
 ## Prerequisites 
-We first need to get the ISO. I'm going to go with Debian 12 Bookworm, and you can
+You first need to get the ISO. I'm going to go with Debian 12 Bookworm, and you can
 of course, install this on hardware, but I'm going to install it on a VM.
 
 ## Installation
@@ -37,7 +37,7 @@ domain normally you can skip this, but if you have setup pfsense or opnsense tha
 You can enter the domain after the first dot, so for me, that would be home.arpa (the default).
 
 #### Partitioning 
-You need to choose guided remove swap because we are going to use zram, then remove root and partition it with xfs or btrfs. if using an SSD If not, you can use ext4. It will give a warning after continuing because there is no swap.
+You need to choose guided remove swap because you are going to use zram, then remove root and partition it with xfs or btrfs. if using an SSD If not, you can use ext4. It will give a warning after continuing because there is no swap.
 but you can just ignore that by hitting no and then continue with the install.
 
 #### Mirrors
@@ -52,19 +52,19 @@ It should now be installed.
 ### Setting up
 
 #### Sudo
-We now need to go to tty2 (ctrl + alt + f2), then login with root because we need to add our user to the sudoers group.
-and we do that with: 
+You now need to go to tty2 (ctrl + alt + f2), then login with root because you need to add your user to the sudoers group.
+and you do that with: 
 ```bash
 /usr/sbin/usermod -aG sudo user
 ```
-then we exit root (ctrl + d) and login with our user, and we should now be in the sudoers file!
+then you exit root (ctrl + d) and login with your user, and you should now be in the sudoers file!
 
 #### SSH
-Now we need to setup an SSH connection. We do that by first enabling the service:
+Now you need to setup an SSH connection. You do that by first enabling the service:
 ```
 sudo systemctl enable --now ssh
 ```
-We need to check for what IP to connect to with ip a:
+You need to check for what IP to connect to with ip a:
 ```bash
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
@@ -79,11 +79,11 @@ We need to check for what IP to connect to with ip a:
     inet6 fe80::5054:ff:fe09:75ef/64 scope link noprefixroute 
        valid_lft forever preferred_lft forever
 ```
-And in 2. inet 192.168.122.221 is the IP we need to connect to.
+And in 2. inet 192.168.122.221 is the IP you need to connect to.
 
 #### Refreshing Mirrors (and fixing kitty)
-We now need to fix Kitty because, as you may have noticed, the SSH connection is acting up.
-This is Kitty to fix that we need to do this:
+You now need to fix Kitty because, as you may have noticed, the SSH connection is acting up.
+This is Kitty to fix that you need to do this:
 
 ```bash
 sudo apt update && sudo apt upgrade -y && sudo apt install kitty -y
@@ -92,7 +92,7 @@ sudo apt remove gdm3 -y
 And then reconnect with the SSH session.
 
 #### Installing Required Packages
-We will now install all the required packages for this server installation:
+You will now install all the required packages for this server installation:
 ```bash
 sudo apt install cargo zram-tools fuse-overlayfs slirp4netns neovim git curl zsh neofetch make cmake rustc btop uidmap dbus-user-session -y
 ```
@@ -117,7 +117,7 @@ curl -LSfs "https://github.com/bootandy/dust/releases/download/v1.0.0/du-dust_1.
 sudo dpkg -i dust.deb && rm dust.deb 
 ```
 #### Zram for swap
-To set up zram, we just need to add these lines to the config and start the service for zram:
+To set up zram, you just need to add these lines to the config and start the service for zram:
 ```bash
 sudo /bin/su -c "echo -e "PERCENT=60" | sudo tee -a /etc/default/zramswap"
 sudo /bin/su -c "echo -e "ALGO=zstd" | sudo tee -a /etc/default/zramswap"
@@ -134,10 +134,10 @@ sudo reboot
 ```
 
 ### Setting up docker with a website!
-We are now going to setup Docker with a [website](https://git.kaleyfischer.xyz/DRAGONTOS/website)!
+You are now going to setup Docker with a [website](https://git.kaleyfischer.xyz/DRAGONTOS/website)!
 
 #### Docker Install 
-We need to add some lines to /etc/sysctl.conf:
+You need to add some lines to /etc/sysctl.conf:
 ```bash
 sudo /bin/su -c "echo 'net.ipv4.ip_unprivileged_port_start=0' >> /etc/sysctl.conf"
 sudo /bin/su -c "echo 'kernel.unprivileged_userns_clone=1' >> /etc/sysctl.conf"
@@ -145,14 +145,14 @@ sudo /bin/su -c "echo 'vm.max_map_count=262144' >> /etc/sysctl.conf"
 sudo sysctl --system
 ```
 It's now time to install Docker!
-We first need to add the Docker keyrings, and you can do that with this:
+You first need to add the Docker keyrings, and you can do that with this:
 ```bash
 sudo apt-get update
 sudo install -m 0755 -d /etc/apt/keyrings
 sudo curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
 sudo chmod a+r /etc/apt/keyrings/docker.asc
 ```
-After that is done, we need to add the repo to our sources:
+After that is done, you need to add the repo to the sources:
 ```bash
 echo \
   "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian \
@@ -160,11 +160,11 @@ echo \
   sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 sudo apt update
 ```
-We can now finally install Docker with the most up-to-date versions:
+You can now finally install Docker with the most up-to-date versions:
 ```bash
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
 ```
-Now that Docker is installed, we need to test it first to check if it is installed.
+Now that Docker is installed, you need to test it first to check if it is installed.
 correctly or not, and you can do that with this:
 ```bash
 sudo docker run hello-world
@@ -172,22 +172,22 @@ sudo docker run hello-world
 If it worked, then Docker is installed correctly!
 
 #### Setting up rootless for docker
-Now that we have Docker installed, we don't want to run everything with root and
-want to run it securely with our user in rootless mode. To do that, we need to run
+Now that you have Docker installed, you don't want to run everything with root and
+want to run it securely with your user in rootless mode. To do that, you need to run
 this simple script from Docker themselves:
 ```bash
 sudo systemctl disable --now docker.service docker.socket
 dockerd-rootless-setuptool.sh install
 systemctl --user enable --now docker
 ```
-And again, to check if it's installed correctly, we can run this command:
+And again, to check if it's installed correctly, you can run this command:
 ```bash
 docker run hello-world
 ```
 
 #### Setting up nginx
-Now that Docker is installed and working, we now need to add some folders for them.
-where to place the containers and such, and to do that, we just need to add these:
+Now that Docker is installed and working, you now need to add some folders for them.
+where to place the containers and such, and to do that, you just need to add these:
 ```bash
 mkdir ~/docker && cd ~/docker
 ```
